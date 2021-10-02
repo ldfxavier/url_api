@@ -205,15 +205,24 @@ class Url extends Model
             $data = $this->get();
             if($data->isNotEmpty()):
                 foreach($data as $r):
-                    $content = file_get_contents($r->url, true, stream_context_create(['http' => ['ignore_errors' => true]]));
+                    $ch = curl_init();
+                    curl_setopt_array($ch, [
+                        CURLOPT_URL            => $r->url,
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_COOKIEJAR      => 'cookies.txt',
+                        CURLOPT_SSL_VERIFYPEER => false,
+                    ]);
+                    $response = curl_exec($ch);
+                    $error = curl_error($ch);
+                    $info = curl_getinfo($ch);
+                    curl_close($ch);
 
-                    $code = explode(' ', $http_response_header[0]);
-
-                    if($code[1] == '200'):
-                        $update['content'] = $content;
+                    if(empty($error)):
+                        $update['content'] = $response;
                     endif;
 
-                    $update['status'] = $code[1];
+                    $update['status'] = $info['http_code'];
                     $this->where('url', $r->url)->update($update);
                 endforeach;
             endif;
