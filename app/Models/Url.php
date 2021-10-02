@@ -19,7 +19,7 @@ class Url extends Model
         $array = [
             'id' => $data->id,
             'url' =>  $data->url,
-            'content' =>  $data->content,
+            'content' =>  utf8_encode($data->content),
             'status' => $data->status,
             'updated_at' =>  [
                 'value' => $data->updated_at,
@@ -219,7 +219,7 @@ class Url extends Model
                     curl_close($ch);
 
                     if(empty($error)):
-                        $update['content'] = $response;
+                        $update['content'] = utf8_decode($response);
                     endif;
 
                     $update['status'] = $info['http_code'];
