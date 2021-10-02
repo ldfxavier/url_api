@@ -19,7 +19,7 @@ class Url extends Model
         $array = [
             'id' => $data->id,
             'url' =>  $data->url,
-            'content' =>  $data->content,
+            'content' =>  utf8_encode($data->content),
             'status' => $data->status,
             'updated_at' =>  [
                 'value' => $data->updated_at,
@@ -220,6 +220,7 @@ class Url extends Model
 
                     if(empty($error)):
                         $update['content'] = html_entity_decode($response);
+                        $update['content'] = utf8_encode($update['content']);
                     endif;
 
                     $update['status'] = $info['http_code'];
